@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  number   String    @unique
+  password String
+  Profile  Profile[]
+  Post     Post[]
+  Likes    Likes[]
+  Comment  Comment[]
+}
+
+model Profile {
+  profileId    String   @id
+  gender       String?
+  about        String?
+  professional String?
+  profileImg   String
+  education    String?
+  address      String?
+  userId       User     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  Skills       Skills[]
+}
+
+enum SkillLevel {
+  Beginner
+  Intermediate
+  Advanced
+}
+
+model Skills {
+  skillId   String     @id @default(uuid())
+  profileID String
+  skill     String
+  level     SkillLevel
+  profile   Profile    @relation(fields: [profileID], references: [profileId], onDelete: Cascade)
+}
+
+model Post {
+  postId    String @id @default(uuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postImg   String
+  postTitle String
+  location String
+  Likes   Likes[]
+  Comment Comment[]
+}
+
+model Likes {
+  likeId    String @id @default(uuid())
+  userId    String
+  projectId String
+  project   Post   @relation(fields: [projectId], references: [postId], onDelete: Cascade)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model Comment {
+  id        Int    @id @default(autoincrement())
+  userId    String
+  projectId String
+  comment   String
+  project   Post   @relation(fields: [projectId], references: [postId], onDelete: Cascade)
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId], name: "Comment_post_index")
+}
