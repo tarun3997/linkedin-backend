@@ -57,7 +57,6 @@ model Post {
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   postImg   String
   postTitle String
-  location String
   Likes   Likes[]
   Comment Comment[]
 }
